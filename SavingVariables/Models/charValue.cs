@@ -11,12 +11,12 @@ namespace SavingVariables.Models
     public class charValue
     {
         [Key]
-        public int charId { get; set; }
+        public virtual int charId { get; set; }
         
         [Required]
-        public string charName { get; set; }
+        public virtual string charName { get; set; }
         
         [Required]
-        public int value { get; set; }
+        public virtual int value { get; set; }
     }
 }

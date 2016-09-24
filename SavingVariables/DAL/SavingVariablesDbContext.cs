@@ -11,7 +11,7 @@ using SavingVariables.Models;
 
 namespace SavingVariables.DAL
 {
-    public class SavingVariablesDatabase: DbContext
+    public class SavingVariablesDbContext: DbContext
     {
         public virtual DbSet<charValue> charValueDb { get; set; }
 
