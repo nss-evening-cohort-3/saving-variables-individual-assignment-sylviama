@@ -19,6 +19,7 @@ namespace SavingVariables.DAL
             Context = new SavingVariablesDbContext();
         }
 
+        //dependancy Injection: repository depenses on context
         public SavingVariablesRepository(SavingVariablesDbContext _context)
         {
             Context = _context;
@@ -50,6 +51,7 @@ namespace SavingVariables.DAL
         {
             try
             {
+                //DbSet<T> inherence from IQueryable<T> and IEnumberable<T>
                 charValue selectedRecord = (from d in Context.charValueDb
                                             where d.charName == inputString
                                             select d).SingleOrDefault();
@@ -74,16 +76,9 @@ namespace SavingVariables.DAL
         //show all
         public List<charValue> showItAll()
         {
-            try
-            {
-                IQueryable<charValue> selectedCtx = from d in Context.charValueDb
-                                                    select d;
-                return selectedCtx.ToList();
-            }
-            catch (InvalidOperationException)
-            {
-                return null;
-            }
+            IQueryable<charValue> selectedCtx = from d in Context.charValueDb
+                                                select d;
+            return selectedCtx.ToList(); 
         }
 
         //same as show all, getVariable, this is the simplied way, is not being used

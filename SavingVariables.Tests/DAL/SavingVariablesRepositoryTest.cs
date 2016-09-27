@@ -28,19 +28,25 @@ namespace SavingVariables.Tests.DAL
             mock_context = new Mock<SavingVariablesDbContext>();
             mock_dbset = new Mock<DbSet<charValue>>();
             variable_datastore = new List<charValue>();//fake database
-            repo = new SavingVariablesRepository(mock_context.Object);
+            repo = new SavingVariablesRepository(mock_context.Object);//use the dependancy Injection
+            //.Object returns the instance
 
             var queryable_list = variable_datastore.AsQueryable();//type change
 
             // Lie to LINQ make it think that our new Queryable List is a Database table.
-            mock_dbset.As<IQueryable<charValue>>().Setup(m => m.Provider).Returns(queryable_list.Provider);
-            mock_dbset.As<IQueryable<charValue>>().Setup(m => m.Expression).Returns(queryable_list.Expression);
-            mock_dbset.As<IQueryable<charValue>>().Setup(m => m.ElementType).Returns(queryable_list.ElementType);
-            mock_dbset.As<IQueryable<charValue>>().Setup(m => m.GetEnumerator()).Returns(() => queryable_list.GetEnumerator());
+            //the real dbset doesn't have Provider, Expression method...
+            //return only return once, callback could be used for many times
+            //IQuerable only used in LINQ
+            mock_dbset.As<IQueryable<charValue>>().Setup(m => m.Provider).Returns(queryable_list.Provider);//where data from
+            mock_dbset.As<IQueryable<charValue>>().Setup(m => m.Expression).Returns(queryable_list.Expression);//e.g. SQL query is an expression; a big expression could be seperate into two expressions
+            mock_dbset.As<IQueryable<charValue>>().Setup(m => m.ElementType).Returns(queryable_list.ElementType);//key words is a element type, e.g. SELECT, FROM; * simbal; table, 3 element type
+            mock_dbset.As<IQueryable<charValue>>().Setup(m => m.GetEnumerator()).Returns(() => queryable_list.GetEnumerator());//could loop over ordered
 
+            //mock context return the mock_variable_table when someone calls the SavingVariableContext.charValueDb
             mock_context.Setup(c => c.charValueDb).Returns(mock_dbset.Object);
 
-            mock_dbset.Setup(t => t.Add(It.IsAny<charValue>())).Callback((charValue a) => variable_datastore.Add(a));
+            //capture when use Add function, instead use variable_datastore
+            mock_dbset.Setup(t => t.Add(It.IsAny<charValue>())).Callback((charValue a/*capture the variable sent*/) => variable_datastore.Add(a)/*add it to a list*/);
             mock_dbset.Setup(t => t.Remove(It.IsAny<charValue>())).Callback((charValue a) => variable_datastore.Remove(a));
  
         }
@@ -73,7 +79,6 @@ namespace SavingVariables.Tests.DAL
         //test at first is empty
         public void RepoShowItAllWhenEmpty()
         {
-
             List<charValue> found_variables = repo.showItAll();
             int actual_record_count = found_variables.Count;
             Assert.AreEqual(0, actual_record_count);
